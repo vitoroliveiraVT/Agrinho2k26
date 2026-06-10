@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro Forte, Futuro Sustentável - Premium</title>
+    <style>
+        :root {
+            --primary: #2ecc71; /* Verde Ecologia */
+            --warning: #f1c40f; /* Amarelo Produção */
+            --danger: #e74c3c;  /* Vermelho Alerta */
+            --bg: #0b0f19;      /* Fundo Dark Moderno */
+            --surface: rgba(22, 32, 54, 0.8);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f1f5f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            text-align: center;
+            background: linear-gradient(to right, #34d399, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            font-weight: 800;
+        }
+
+        header p {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        /* painel de Pontos e Rodadas */
+        .top-stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .top-stats span {
+            color: #94a3b8;
+        }
+
+        .top-stats strong {
+            color: #38bdf8;
+        }
+
+        /* Barras de Status */
+        .status-section {
+            background: rgba(15, 23, 42, 0.4);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 25px;
+        }
+
+        .status-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .bar-bg {
+            background: #1e293b;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 50%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #bar-prod { background: var(--warning); box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); }
+        #bar-env { background: var(--primary); box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+
+        /* Caixa de Pergunta/Cenário */
+        .card-scenario {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid #34d399;
+        }
+
+        .card-scenario h3 {
+            font-size: 1.15rem;
+            color: #34d399;
+            margin-bottom: 8px;
+        }
+
+        .card-scenario p {
+            color: #cbd5e1;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* Botões de Decisão */
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-choice {
+            background: rgba(255, 255, 255, 0.03);
+            color: #e2e8f0;
+            border: 1px solid var(--border);
+            padding: 14px 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .btn-choice:hover {
+            background: linear-gradient(90deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 211, 153, 0.02) 100%);
+            border-color: rgba(52, 211, 153, 0.4);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        /* Telas de Transição */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .btn-restart {
+            background: var(--primary);
+            color: #0b0f19;
+            font-weight: bold;
+            padding: 14px 30px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .btn-restart:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <div id="game-screen" class="screen active">
+            <header>
+                <h1>Agro Forte, Futuro Sustentável</h1>
+                <p>Equilibre a produção e a natureza para vencer o desafio</p>
+            </header>
+
+            <div class="top-stats">
+                <div>Fase: <strong id="txt-round" style="color: #fff;">1/5</strong></div>
+                <div>Pontuação: <strong id="txt-score">0</strong></div>
+            </div>
+
+            <div class="status-section">
+                <div class="status-label">
+                    <span>🌾 Capacidade de Produção</span>
+                    <span id="num-prod" style="color: var(--warning);">50%</span>
+                </div>
+                <div class="bar-bg">
+                    <div id="bar-prod" class="bar-fill"></div>
+                </div>
+
+                <div class="status-label">
+                    <span>🌳 Proteção ao Meio Ambiente</span>
+                    <span id="num-env" style="color: var(--primary);">50%</span>
+                </div>
+                <div class="bar-bg">
+                    <div id="bar-env" class="bar-fill"></div>
+                </div>
+            </div>
+
+            <div class="card-scenario">
+                <h3 id="event-title">Carregando cenário...</h3>
+                <p id="event-desc">Aguarde as opções de gerenciamento...</p>
+            </div>
+
+            <div class="action-list" id="action-buttons">
+                </div>
+        </div>
+
+        <div id="over-screen" class="screen" style="text-align: center; padding: 20px 0;">
+            <h2 id="over-title" style="font-size: 2.2rem; margin-bottom: 15px;">Fim de Ciclo</h2>
+            <p id="over-desc" style="color: #cbd5e1; line-height: 1.6; margin-bottom: 25px;"></p>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; display: inline-block;">
+                <span style="font-size: 0.85rem; text-transform: uppercase; color: #94a3b8;">Pontuação Final</span>
+                <div id="final-score" style="font-size: 3rem; font-weight: 900; color: #fbbf24;">0</div>
+            </div>
+            <br>
+            <button class="btn-restart" onclick="restartGame()">Jogar Novamente</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Banco de dados revisado - 5 dilemas cruciais, claros e diretos
+        const gameEvents = [
+            {
+                title: "1. Controle de Pragas na Safra",
+                desc: "Insetos estão destruindo parte da colheita. Qual rumo você vai tomar?",
+                options: [
+                    { text: "Usar defensivos químicos fortes (Ação rápida, mas polui rios próximos).", prod: 25, env: -20, points: 50 },
+                    { text: "Utilizar manejo biológico natural (Mais lento, porém limpa o ecossistema).", prod: 10, env: 15, points: 100 }
+                ]
+            },
+            {
+                title: "2. Espaço de Plantio",
+                desc: "A demanda do mercado aumentou e você precisa de mais espaço físico.",
+                options: [
+                    { text: "Desmatar parte da floresta nativa interna para plantar mais grãos.", prod: 30, env: -30, points: 40 },
+                    { text: "Adotar técnicas de rotação de culturas usando o mesmo espaço disponível.", prod: 15, env: 15, points: 120 }
+                ]
+            },
+            {
+                title: "3. Uso de Água na Irrigação",
+                desc: "O período de seca começou. Como você vai distribuir a água da propriedade?",
+                options: [
+                    { text: "Bombear água do rio local no máximo para garantir hidratação total da lavoura.", prod: 20, env: -25, points: 50 },
+                    { text: "Instalar um sistema moderno de irrigação por gotejamento que economiza água.", prod: 15, env: 10, points: 100 }
+                ]
+            },
+            {
+                title: "4. Força de Energia",
+                desc: "O gasto elétrico para manter os maquinários funcionando disparou.",
+                options: [
+                    { text: "Comprar geradores a diesel comuns (Baratos de instalar, mas geram muita fumaça).", prod: 15, env: -15, points: 60 },
+                    { text: "Investir em placas de energia solar nos telhados dos galpões da fazenda.", prod: 10, env: 25, points: 110 }
+                ]
+            },
+            {
+                title: "5. Destino do Lixo e Embalagens",
+                desc: "Os galões vazios e resíduos químicos acumularam nos depósitos.",
+                options: [
+                    { text: "Queimar ou enterrar o entulho nos fundos do terreno para limpar espaço rápido.", prod: 5, env: -25, points: 30 },
+                    { text: "Fazer a separação correta e enviar tudo para o centro de reciclagem e logística reversa.", prod: 10, env: 20, points: 120 }
+                ]
+            }
+        ];
+
+        // Variáveis de Estado Interno
+        let currentRound = 1;
+        const totalRounds = 5;
+        let production = 50;
+        let environment = 50;
+        let score = 0;
+        let shuffledEvents = [];
+
+        function initGame() {
+            currentRound = 1;
+            production = 50;
+            environment = 50;
+            score = 0;
+            
+            // Embaralha as perguntas para cada partida ser única
+            shuffledEvents = [...gameEvents].sort(() => Math.random() - 0.5);
+
+            document.getElementById("game-screen").classList.add("active");
+            document.getElementById("over-screen").classList.remove("active");
+
+            renderUI();
+            loadNextScenario();
+        }
+
+        function renderUI() {
+            // Atualiza os números textuais
+            document.getElementById("txt-round").innerText = `${currentRound}/${totalRounds}`;
+            document.getElementById("txt-score").innerText = score;
+            document.getElementById("num-prod").innerText = `${production}%`;
+            document.getElementById("num-env").innerText = `${environment}%`;
+
+            // Atualiza as barras de progresso
+            document.getElementById("bar-prod").style.width = `${production}%`;
+            document.getElementById("bar-env").style.width = `${environment}%`;
+        }
+
+        function loadNextScenario() {
+            if (currentRound > totalRounds) {
+                endGame(true);
+                return;
+            }
+
+            const currentEvent = shuffledEvents[currentRound - 1];
+            document.getElementById("event-title").innerText = currentEvent.title;
+            document.getElementById("event-desc").innerText = currentEvent.desc;
+
+            const btnContainer = document.getElementById("action-buttons");
+            btnContainer.innerHTML = ""; // Limpa escolhas anteriores
+
+            currentEvent.options.forEach(opt => {
+                const button = document.createElement("button");
+                button.classList.add("btn-choice");
+                button.innerText = opt.text;
+                button.onclick = () => makeChoice(opt.prod, opt.env, opt.points);
+                btnContainer.appendChild(button);
+            });
+        }
+
+        function makeChoice(prodChange, envChange, eventPoints) {
+            production = Math.min(Math.max(production + prodChange, 0), 100);
+            environment = Math.min(Math.max(environment + envChange, 0), 100);
+            score += eventPoints;
+
+            // Verifica condições de derrota imediatas antes de passar de fase
+            if (production <= 0) {
+                endGame(false, "Sua produção quebrou! Sem alimentos e sem colheita ativa, a fazenda faliu financeiramente.");
+                return;
+            }
+            if (environment <= 0) {
+                endGame(false, "Colapso Ecológico! A degradação extrema destruiu a qualidade do solo e a água. A fazenda foi interditada.");
+                return;
+            }
+
+            currentRound++;
+            renderUI();
+            loadNextScenario();
+        }
+
+        function endGame(isVictory, message = "") {
+            document.getElementById("game-screen").classList.remove("active");
+            document.getElementById("over-screen").classList.add("active");
+
+            const titleEl = document.getElementById("over-title");
+            const descEl = document.getElementById("over-desc");
+            const scoreEl = document.getElementById("final-score");
+
+            scoreEl.innerText = score;
+
+            if (isVictory) {
+                // Se terminou com equilíbrio real entre as duas barras
+                if (Math.abs(production - environment) <= 20) {
+                    titleEl.innerText = "Equilíbrio Sustentável Atingido!";
+                    titleEl.style.color = "var(--primary)";
+                    descEl.innerHTML = `<strong>Excelente Gestão!</strong> Você provou a tese do tema principal. Conduziu o Agro Forte protegendo o Meio Ambiente de forma unificada.<br><br>Métricas Finais -> Produção: <strong>${production}%</strong> | Ambiente: <strong>${environment}%</strong>`;
+                } else {
+                    titleEl.innerText = "Ciclo Terminado em Instabilidade";
+                    titleEl.style.color = "var(--warning)";
+                    descEl.innerHTML = `Você completou o período de gestão, mas seus índices ficaram muito distantes. Foque em equilibrar melhor as barras.<br><br>Métricas Finais -> Produção: <strong>${production}%</strong> | Ambiente: <strong>${environment}%</strong>`;
+                }
+            } else {
+                titleEl.innerText = "Fim de Jogo!";
+                titleEl.style.color = "var(--danger)";
+                descEl.innerText = message;
+            }
+        }
+
+        function restartGame() {
+            initGame();
+        }
+
+        // Inicializa o script perfeitamente ao carregar a página
+        window.onload = initGame;
+    </script>
+</body>
+</html>
